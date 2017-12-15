@@ -103,6 +103,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r'/()$', tornado.web.StaticFileHandler, {'path': 'static/index.html'}),
+            (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
             (r'/exchange_data', MainHandler, {'exchange_data': exchange_data})]
         settings = dict(debug=False)
         tornado.web.Application.__init__(self, handlers, **settings)

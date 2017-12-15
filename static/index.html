@@ -3,8 +3,7 @@
 <head>
   <title>Test</title>
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" 
-        integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/bootstrap.min.css">
 </head>
 <body>
   <div id="app" class="container-fluid">
@@ -54,8 +53,8 @@
               <td>{{item.coin}}</td>
               <td>{{item.exchange2}} &rarr; {{item.exchange1}}</td>
               <td>{{item.exchange2_price}} &rarr; {{item.exchange1_price}}</td>
-              <td>{{item.diff}}</td>
-              <td>{{item.diff_perc}}</td>
+              <td>{{item.diff.toFixed(2)}}</td>
+              <td>{{item.diff_perc.toFixed(2)}}%</td>
             </tr>
           </tbody>
         </table>
