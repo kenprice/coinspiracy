@@ -79,6 +79,7 @@ def get_exchange_diffs():
                     results[k] = []
 
                 result = {
+                    "coin": k,
                     "exchange1": k1,
                     "exchange2": k2,
                     "exchange1_price": data1[k],
