@@ -11,9 +11,9 @@
     <div id="app" class="container">
     <div>
       <h2>Filter Coins</h2>
-      <div class="form-check form-check-inline" v-for="coin in available_coins">
+      <div class="form-check form-check-inline" v-for="coin in availableCoins">
         <label class="form-check-label">
-          <input class="form-check-input" type="checkbox" v-model="coin_filters[coin]">
+          <input class="form-check-input" type="checkbox" v-model="coinFilters[coin]" v-on:change="saveCoinFilters">
           {{coin}}
         </label>
       </div>
@@ -21,9 +21,9 @@
 
     <div>
       <h2>Filter Exchanges</h2>
-      <div class="form-check form-check-inline" v-for="exchange in available_exchanges">
+      <div class="form-check form-check-inline" v-for="exchange in availableExchanges">
         <label class="form-check-label">
-          <input class="form-check-input" type="checkbox" v-model="exchange_filters[exchange]">
+          <input class="form-check-input" type="checkbox" v-model="exchangeFilters[exchange]" v-on:change="saveExchangeFilters">
           {{exchange}}
         </label>
       </div>
@@ -41,7 +41,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in exchange_data" v-if="exchange_filters[item.exchange1] && exchange_filters[item.exchange2] && coin_filters[item.coin]">
+          <tr v-for="item in exchangeData" v-if="exchangeFilters[item.exchange1] && exchangeFilters[item.exchange2] && coinFilters[item.coin]">
             <td>{{item.coin}}</td>
             <td>{{item.exchange1}} &rarr; {{item.exchange2}}</td>
             <td>{{item.exchange1_price}} &rarr; {{item.exchange2_price}}</td>
@@ -59,7 +59,7 @@
     var vm = new Vue({
       el: '#app',
       data: function() {
-        var available_exchanges = Object.values(data)
+        var availableExchanges = Object.values(data)
           .reduce(function(a, b) {
             return a.concat(b)
           }, []).map(function(x) {
@@ -68,30 +68,42 @@
             return arr.indexOf(e, i+1) === -1
           }).sort();
 
-        var exchange_filters = available_exchanges.reduce(function (a, b) {
+        var savedExchangeFilter = localStorage.getItem("exchangeFilters");
+        var exchangeFilters = (savedExchangeFilter && JSON.parse(savedExchangeFilter)) || availableExchanges.reduce(function (a, b) {
           a[b] = true;
           return a;
         }, {});
 
-        var available_coins = Object.keys(data).sort();
+        var availableCoins = Object.keys(data).sort();
 
-        var coin_filters = available_coins.reduce(function (a, b) {
+        var savedCoinFilter = localStorage.getItem("coinFilters");
+        var coinFilters = (savedCoinFilter && JSON.parse(savedCoinFilter)) || availableCoins.reduce(function (a, b) {
           a[b] = true;
           return a;
         }, {});
 
-        var exchange_data = Object.values(data)
+        var exchangeData = Object.values(data)
           .reduce(function(a, b) {
             return a.concat(b);
-          });
+          }).sort(function (a, b) {
+            return a.diff_perc - b.diff_perc;
+          }).reverse();
 
         return {
-          "available_coins": available_coins,
-          "coin_filters": coin_filters,
-          "available_exchanges": available_exchanges,
-          "exchange_filters": exchange_filters,
-          "exchange_data": exchange_data 
+          availableCoins: availableCoins,
+          coinFilters: coinFilters,
+          availableExchanges: availableExchanges,
+          exchangeFilters: exchangeFilters,
+          exchangeData: exchangeData 
         };
+      },
+      methods: {
+        saveExchangeFilters: function() {
+          localStorage.setItem("exchangeFilters", JSON.stringify(this.exchangeFilters));
+        },
+        saveCoinFilters: function() {
+          localStorage.setItem("coinFilters", JSON.stringify(this.coinFilters));
+        },
       }
     });
   </script>
