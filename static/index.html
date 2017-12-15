@@ -1,56 +1,74 @@
 <!doctype html>
 <html> 
-  <head>
-    <title>Test</title>
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" 
+<head>
+  <title>Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" 
         integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-  </head>
-  <body>
+  <style>
+    #coin-filters-content {
+      height: 500px;
+      overflow-y: scroll;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container-fluid">
+    <div class="row d-flex d-md-block flex-nowrap wrapper">
+      <div class="col-md-3 float-left col-1 pl-0 pr-0 collapse width show" id="sidebar">
+        <div class="list-group border-0 card text-center text-md-left">
 
-    <div id="app" class="container">
-    <div>
-      <h2>Filter Coins</h2>
-      <div class="form-check form-check-inline" v-for="coin in availableCoins">
-        <label class="form-check-label">
-          <input class="form-check-input" type="checkbox" v-model="coinFilters[coin]" v-on:change="saveCoinFilters">
-          {{coin}}
-        </label>
+          <a class="list-group-item d-inline-block" data-toggle="collapse" href="#coin-filters" aria-expanded="true" aria-controls="coin-filter">
+            <i class="fa fa-dashboard"></i> <span class="d-none d-md-inline">Currency Filters</span>
+          </a>
+
+          <div id="coin-filters">
+            <div id="coin-filters-content">
+              <div class="form-check list-group-item" v-for="coin in availableCoins" data-parent="#menu1">
+                <label class="form-check-label">
+                  <input class="form-check-input" type="checkbox" v-model="coinFilters[coin]" v-on:change="saveCoinFilters">
+                    {{coin}}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div>
-      <h2>Filter Exchanges</h2>
-      <div class="form-check form-check-inline" v-for="exchange in availableExchanges">
-        <label class="form-check-label">
-          <input class="form-check-input" type="checkbox" v-model="exchangeFilters[exchange]" v-on:change="saveExchangeFilters">
-          {{exchange}}
-        </label>
+    <main class="col-md-9 float-left col px-5 pl-md-2 pt-2 main">
+      <div>
+        <h2>Filter Exchanges</h2>
+        <div class="form-check form-check-inline" v-for="exchange in availableExchanges">
+          <label class="form-check-label">
+            <input class="form-check-input" type="checkbox" v-model="exchangeFilters[exchange]" v-on:change="saveExchangeFilters">
+            {{exchange}}
+          </label>
+        </div>
       </div>
-    </div>
 
-    <div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Currency</th>
-            <th>Exchange Pair</th>
-            <th>Price Pair</th>
-            <th>Diff</th>
-            <th>Diff %</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in exchangeData" v-if="exchangeFilters[item.exchange1] && exchangeFilters[item.exchange2] && coinFilters[item.coin]">
-            <td>{{item.coin}}</td>
-            <td>{{item.exchange2}} &rarr; {{item.exchange1}}</td>
-            <td>{{item.exchange2_price}} &rarr; {{item.exchange1_price}}</td>
-            <td>{{item.diff}}</td>
-            <td>{{item.diff_perc}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Currency</th>
+              <th>Exchange Pair</th>
+              <th>Price Pair</th>
+              <th>Diff</th>
+              <th>Diff %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in exchangeData" v-if="exchangeFilters[item.exchange1] && exchangeFilters[item.exchange2] && coinFilters[item.coin]">
+              <td>{{item.coin}}</td>
+              <td>{{item.exchange2}} &rarr; {{item.exchange1}}</td>
+              <td>{{item.exchange2_price}} &rarr; {{item.exchange1_price}}</td>
+              <td>{{item.diff}}</td>
+              <td>{{item.diff_perc}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
   </div>
 
   <script>
@@ -122,11 +140,11 @@
     });
   </script>
 
-      <!-- Optional JavaScript -->
-      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 
   </body>
 </html>
