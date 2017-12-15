@@ -1,12 +1,26 @@
 <!doctype html>
 <html> 
 <head>
-  <title>Test</title>
+  <title>Coinspiracy - Arbitrage tool for cryptocurrency exchanges</title>
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   <link rel="stylesheet" href="/static/bootstrap.min.css">
+  <style>
+  .logo {
+    display: block;
+    text-indent: 100px;
+    width: 82px;
+    height: 82px;
+    background: url(/static/cease-your-investigations-immediately.svg);
+    background-size: 82px 82px;
+  }
+  </style>
 </head>
 <body>
   <div id="app" class="container-fluid">
+    <nav class="navbar navbar-expand-lg">
+      <a class="logo navbar-brand" href="#">Coinspiracy</a>
+      <small class="text-muted">Refreshing in {{ countDown }} seconds...</small>
+    </nav>
     <div class="row d-flex d-md-block flex-nowrap wrapper">
       <div class="col-md-3 float-left col-1 pl-0 pr-0 collapse width show" id="sidebar">
         <div class="list-group border-0 card text-center text-md-left">
@@ -21,17 +35,15 @@
             </label>
           </div>
 
-          <a class="list-group-item d-inline-block" data-toggle="collapse" href="#coin-filters" aria-expanded="true" aria-controls="coin-filter">
+          <a class="list-group-item d-inline-block">
             <i class="fa fa-dashboard"></i> <span class="d-none d-md-inline">Currency Filters</span>
           </a>
 
-          <div id="coin-filters">
-            <div class="form-check list-group-item" v-for="coin in availableCoins" data-parent="#menu1">
-              <label class="form-check-label">
-                <input class="form-check-input" type="checkbox" v-model="coinFilters[coin]" v-on:change="saveCoinFilters">
-                  {{coin}}
-              </label>
-            </div>
+          <div class="form-check list-group-item" v-for="coin in availableCoins" data-parent="#menu1">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" v-model="coinFilters[coin]" v-on:change="saveCoinFilters">
+                {{coin}}
+            </label>
           </div>
         </div>
       </div>
@@ -66,24 +78,18 @@
     var vm = new Vue({
       el: '#app',
       mounted: function() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/exchange_data');
-        xhr.send(null);
-        xhr.onreadystatechange = (function() {
-          var DONE = 4; // readyState 4 means the request is done.
-          var OK = 200; // status 200 is a successful return.
-          if (xhr.readyState === DONE) {
-            if (xhr.status === OK) {
-              console.log(xhr.responseText); // 'This is the returned text.'
-              this.updateExchangeData(JSON.parse(xhr.responseText));
-            } else {
-              console.log('Error: ' + xhr.status); // An error occurred during the request.
-            }
+        this.fetchAndUpdateExchangeData();
+        setInterval((function() {
+          this.countDown--;
+          if (this.countDown <= 0) {
+            this.fetchAndUpdateExchangeData();
+            this.countDown = 30;
           }
-        }).bind(this);
+        }).bind(this), 1000);
       },
       data: {
-        availableCoins: {},
+        countDown: 30,
+        availableCoins: {}  ,
         coinFilters: [],
         availableExchanges: {},
         exchangeFilters: [],
@@ -95,6 +101,22 @@
         },
         saveCoinFilters: function() {
           localStorage.setItem("coinFilters", JSON.stringify(this.coinFilters));
+        },
+        fetchAndUpdateExchangeData: function() {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', '/exchange_data');
+          xhr.send(null);
+          xhr.onreadystatechange = (function() {
+            var DONE = 4  ;
+            var OK = 200;
+            if (xhr.readyState === DONE) {
+              if (xhr.status === OK) {
+                this.updateExchangeData(JSON.parse(xhr.responseText));
+              } else {
+                console.log('Error: ' + xhr.status); // An error occurred during the request.
+              }
+            }
+          }).bind(this);
         },
         updateExchangeData: function(data) {
           this.availableExchanges = Object.values(data)
