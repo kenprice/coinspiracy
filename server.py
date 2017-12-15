@@ -10,16 +10,18 @@ import tornado.ioloop
 import tornado.web
 from tornado import gen
 
-exchanges = ['bitfinex', 'bithumb', 'bittrex', 'binance', 'gdax', 'poloniex', 'kraken']
+exchanges = ['bitfinex', 'bithumb', 'bittrex', 'binance', 'gdax', 'poloniex', 'kraken', 'etherdelta']
 exchange_data = {'data': {}}
 
-def download_exchange(exchange: str) -> dict:
+Price = namedtuple('Price', ['exchange', 'diff', 'diff_perc'])
+
+def download_exchange(exchange):
     """
     Download exchange data
     :param exchange: exchange name
     :return: dict of currency: usd_price
     """
-    url = f'https://coinmarketcap.com/exchanges/{exchange}/'
+    url = 'https://coinmarketcap.com/exchanges/' + exchange + '/'
     resp = requests.get(url)
     sel = parsel.Selector(text=resp.text, base_url=resp.url)
     results = {}
@@ -30,10 +32,7 @@ def download_exchange(exchange: str) -> dict:
             results[name] = usd
     return results
 
-Price = namedtuple('Price', ['exchange', 'diff', 'diff_perc'])
-
-
-def price_diff(data1, data2, sort_by='diff_perc', sort_reverse=True) -> List[Price]:
+def price_diff(data1, data2, sort_by='diff_perc', sort_reverse=True):
     """
     :param data1: exchange data1
     :param data2: exchange data2
@@ -50,17 +49,6 @@ def price_diff(data1, data2, sort_by='diff_perc', sort_reverse=True) -> List[Pri
         results.append(Price(k, diff, diff_perc))
     results = sorted(results, key=lambda price: getattr(price, sort_by), reverse=sort_reverse)
     return results
-
-def format_float_decimals(num: Union[int, float]) -> str:
-    if num < 1:
-        return f'{num:.5f}'
-    if num < 10:
-        return f'{num:.3f}'
-    if num < 100:
-        return f'{num:.2f}'
-    if num < 1000:
-        return f'{num:.1f}'
-    return f'{num:.0f}'
 
 @gen.coroutine
 def get_exchange_diffs():
