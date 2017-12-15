@@ -75,18 +75,19 @@ def get_exchange_diffs():
             price_d = price_diff(data1, data2)
 
             for k, diff, diff_perc in price_d:
-                if k1 not in results:
-                    results[k1] = {}
-                if k2 not in results[k1]:
-                    results[k1][k2] = []
-                result = OrderedDict([
-                    ("coin", k),
-                    (k1, data1[k]),
-                    (k2, data2[k]),
-                    ("diff", diff),
-                    ("diff_perc", diff_perc),
-                ])
-                results[k1][k2].append(result)
+                if k not in results:
+                    results[k] = []
+
+                result = {
+                    "exchange1": k1,
+                    "exchange2": k2,
+                    "exchange1_price": data1[k],
+                    "exchange2_price": data2[k],
+                    "diff": diff,
+                    "diff_perc": diff_perc,
+                }
+
+                results[k].append(result)
     print("Updated")
     exchange_data['data'] = dict(results)
     print(exchange_data)
