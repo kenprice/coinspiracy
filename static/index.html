@@ -1,0 +1,133 @@
+<!doctype html>
+<html> 
+  <head>
+    <title>Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" 
+        integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+  </head>
+  <body>
+
+    <div id="app" class="container">
+    <div>
+      <h2>Filter Coins</h2>
+      <div class="form-check form-check-inline" v-for="coin in availableCoins">
+        <label class="form-check-label">
+          <input class="form-check-input" type="checkbox" v-model="coinFilters[coin]" v-on:change="saveCoinFilters">
+          {{coin}}
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <h2>Filter Exchanges</h2>
+      <div class="form-check form-check-inline" v-for="exchange in availableExchanges">
+        <label class="form-check-label">
+          <input class="form-check-input" type="checkbox" v-model="exchangeFilters[exchange]" v-on:change="saveExchangeFilters">
+          {{exchange}}
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Currency</th>
+            <th>Exchange Pair</th>
+            <th>Price Pair</th>
+            <th>Diff</th>
+            <th>Diff %</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in exchangeData" v-if="exchangeFilters[item.exchange1] && exchangeFilters[item.exchange2] && coinFilters[item.coin]">
+            <td>{{item.coin}}</td>
+            <td>{{item.exchange2}} &rarr; {{item.exchange1}}</td>
+            <td>{{item.exchange2_price}} &rarr; {{item.exchange1_price}}</td>
+            <td>{{item.diff}}</td>
+            <td>{{item.diff_perc}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      mounted: function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/exchange_data');
+        xhr.send(null);
+        xhr.onreadystatechange = (function() {
+          var DONE = 4; // readyState 4 means the request is done.
+          var OK = 200; // status 200 is a successful return.
+          if (xhr.readyState === DONE) {
+            if (xhr.status === OK) {
+              console.log(xhr.responseText); // 'This is the returned text.'
+              this.updateExchangeData(JSON.parse(xhr.responseText));
+            } else {
+              console.log('Error: ' + xhr.status); // An error occurred during the request.
+            }
+          }
+        }).bind(this);
+      },
+      data: {
+        availableCoins: {},
+        coinFilters: [],
+        availableExchanges: {},
+        exchangeFilters: [],
+        exchangeData: {} 
+      },
+      methods: {
+        saveExchangeFilters: function() {
+          localStorage.setItem("exchangeFilters", JSON.stringify(this.exchangeFilters));
+        },
+        saveCoinFilters: function() {
+          localStorage.setItem("coinFilters", JSON.stringify(this.coinFilters));
+        },
+        updateExchangeData: function(data) {
+          this.availableExchanges = Object.values(data)
+            .reduce(function(a, b) {
+              return a.concat(b);
+            }, []).map(function(x) {
+              return x.exchange1;
+            }).filter(function (e, i, arr) {
+              return arr.indexOf(e, i+1) === -1;
+            }).sort();
+
+          var savedExchangeFilter = localStorage.getItem("exchangeFilters");
+          this.exchangeFilters = (savedExchangeFilter && JSON.parse(savedExchangeFilter)) || this.availableExchanges.reduce(function (a, b) {
+            a[b] = true;
+            return a;
+          }, {});
+
+          this.availableCoins = Object.keys(data).sort();
+
+          var savedCoinFilter = localStorage.getItem("coinFilters");
+          this.coinFilters = (savedCoinFilter && JSON.parse(savedCoinFilter)) || this.availableCoins.reduce(function (a, b) {
+            a[b] = true;
+            return a;
+          }, {});
+
+          this.exchangeData = Object.values(data)
+            .reduce(function(a, b) {
+              return a.concat(b);
+            }).sort(function (a, b) {
+              return a.diff_perc - b.diff_perc;
+            }).reverse();
+          }
+      }
+    });
+  </script>
+
+      <!-- Optional JavaScript -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+  </body>
+</html>
+

@@ -91,11 +91,9 @@ def get_exchange_diffs():
                 results[k].append(result)
     print("Updated")
     exchange_data['data'] = dict(results)
-    print(exchange_data)
 
 class MainHandler(tornado.web.RequestHandler):
     def initialize(self, exchange_data):
-        print("Initialize called")
         self.exchange_data = exchange_data
 
     def get(self):
@@ -103,14 +101,11 @@ class MainHandler(tornado.web.RequestHandler):
 
 class Application(tornado.web.Application):
     def __init__(self):
-        handlers = [('/', MainHandler, {'exchange_data': exchange_data})]
+        handlers = [
+            (r'/()$', tornado.web.StaticFileHandler, {'path': 'static/index.html'}),
+            (r'/exchange_data', MainHandler, {'exchange_data': exchange_data})]
         settings = dict(debug=False)
         tornado.web.Application.__init__(self, handlers, **settings)
-
-def make_app():
-    return tornado.web.Application([
-        (r"/", MainHandler, {'exchange_data': exchange_data}),
-    ])
 
 if __name__ == "__main__":
     application = Application()
@@ -118,5 +113,5 @@ if __name__ == "__main__":
     http_server.listen(8888)
 
     get_exchange_diffs()
-    tornado.ioloop.PeriodicCallback(get_exchange_diffs, 30000).start()
+    tornado.ioloop.PeriodicCallback(get_exchange_diffs, 60000).start()
     tornado.ioloop.IOLoop.current().start()
