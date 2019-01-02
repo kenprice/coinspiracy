@@ -15,6 +15,24 @@ exchange_data = {'data': {}}
 
 Price = namedtuple('Price', ['exchange', 'diff', 'diff_perc'])
 
+def download_currency_data(currency):
+    """
+    Download currency data
+    :param currency: currency name
+    :return: dict of currency: usd_price
+    """
+    url = 'https://coinmarketcap.com/currency/' + currency + '/'
+    resp = requests.get(url)
+    sel = parsel.Selector(text=resp.text, base_url=resp.url)
+    results = {}
+    for row in sel.css('.table-condensed>tr')[1:]:
+        name = row.css('.market-name::text').extract_first()
+        usd = float(row.css('.price::attr(data-usd)').extract_first())
+        if name and usd:
+            results[name] = usd
+    return results
+
+
 def download_exchange(exchange):
     """
     Download exchange data
